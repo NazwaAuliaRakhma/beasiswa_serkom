@@ -5,7 +5,6 @@ session_start(); // Mulai sesi
 require 'db.php'; 
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Ambil data dari form
     $nama = $_POST['nama'];
     $email = $_POST['email'];
     $no_hp = $_POST['no_hp'];
@@ -13,34 +12,27 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $ipk = $_POST['ipk'];
     $pilihan_beasiswa = $_POST['pilihan_beasiswa'];
 
-    // Validasi dan proses upload file
     $target_dir = "uploads/";
-    
-    // Buat folder uploads jika belum ada
-    if (!is_dir($target_dir)) {
-        mkdir($target_dir, 0777, true); // Buat folder dengan akses penuh
+    if (!is_dir($target_dir)) { 
+        mkdir($target_dir, 0777, true); 
     }
     
     $target_file = $target_dir . basename($_FILES["berkas"]["name"]);
-    $uploadOk = 1;
+    $uploadOk = 1; 
     $fileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
 
-    // Cek apakah file adalah PDF
     if ($fileType != "pdf") {
         echo "<div class='alert'>Sorry, only PDF files are allowed.</div>";
-        $uploadOk = 0;
+        $uploadOk = 0; 
     }
 
-    // Jika tidak ada masalah dengan upload
     if ($uploadOk == 1) {
         if (move_uploaded_file($_FILES["berkas"]["tmp_name"], $target_file)) {
-            // Masukkan data ke database tanpa menyertakan status_ajuan, karena status ajuan akan otomatis diset oleh database
             $stmt = $conn->prepare("INSERT INTO mahasiswa (nama, email, no_hp, semester, ipk, pilihan_beasiswa, berkas) VALUES (?, ?, ?, ?, ?, ?, ?)");
             $stmt->bind_param("sssssss", $nama, $email, $no_hp, $semester, $ipk, $pilihan_beasiswa, $target_file);
 
-            // Eksekusi statement dan cek apakah berhasil
             if ($stmt->execute()) {
-                $_SESSION['success_message'] = "Application submitted successfully.";
+                $_SESSION['success_message'] = "Form submitted successfully.";
             } else {
                 echo "<div class='alert'>Error: " . $stmt->error . "</div>";
             }
@@ -55,6 +47,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 $stmt = $conn->prepare("SELECT * FROM mahasiswa ORDER BY id DESC");
 $stmt->execute();
 $result = $stmt->get_result();
+
+$beasiswa_counts = [];
+$nama_data = [];
+$ipk_data = [];
+
+while ($row = $result->fetch_assoc()) {
+    $pilihan_beasiswa = $row['pilihan_beasiswa'];
+    if (isset($beasiswa_counts[$pilihan_beasiswa])) {
+        $beasiswa_counts[$pilihan_beasiswa]++;
+    } else {
+        $beasiswa_counts[$pilihan_beasiswa] = 1;
+    }
+    
+    $nama_data[] = $row['nama'];
+    $ipk_data[] = $row['ipk'];
+}
 ?>
 
 <!DOCTYPE html>
@@ -63,58 +71,91 @@ $result = $stmt->get_result();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hasil Beasiswa</title>
-    <link rel="stylesheet" href="style.css"> <!-- External file CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        .alert {
-            background-color: #d4edda;
-            color: #155724;
-            padding: 15px;
-            margin-bottom: 20px;
-            border: 1px solid #c3e6cb;
-            border-radius: 5px;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
-        th {
-            background-color: #4CAF50;
-            color: white;
-        }
-        tr:nth-child(even) {
-            background-color: #f2f2f2;
-        }
-        /* Styling untuk tombol kembali */
-        .back-button {
-            margin-top: 20px;
-        }
-        .back-button a {
-            text-decoration: none;
-            color: white;
-        }
-        .back-button button {
-            background-color: #4CAF50;
-            border: none;
-            color: white;
-            padding: 10px 20px;
-            text-align: center;
-            font-size: 16px;
-            cursor: pointer;
-            border-radius: 5px;
-            display: inline-flex;
-            align-items: center;
-        }
-        .back-button button i {
-            margin-right: 8px;
-        }
-    </style>
+    body {
+        font-family: 'Roboto', sans-serif;
+        background-color: #f4f7fc;
+        color: #333;
+        margin: 0;
+        padding: 0;
+    }
+    .content {
+        max-width: 1200px;
+        margin: 40px auto;
+        background-color: #fff;
+        padding: 20px;
+        box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+    }
+    h1 {
+        font-size: 24px;
+        color: #007BFF;
+        text-align: center;
+        margin-bottom: 30px;
+    }
+    .alert {
+        background-color: #d4edda;
+        color: #155724;
+        padding: 15px;
+        margin-bottom: 20px;
+        border: 1px solid #c3e6cb;
+        border-radius: 5px;
+        font-size: 14px;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+    th, td {
+        border: 1px solid #ddd;
+        padding: 12px;
+        text-align: left;
+    }
+    th {
+        background-color: #3498db; /* Match sidebar color */
+        color: white;
+        font-weight: 500;
+    }
+    tr:nth-child(even) {
+        background-color: #ecf6fc; /* Light shade to match sidebar */
+    }
+    .chart-container {
+        margin: 20px 0;
+        text-align: center;
+    }
+    .back-button {
+        margin-top: 20px;
+        text-align: center;
+    }
+    .back-button a {
+        text-decoration: none;
+    }
+    .back-button button {
+        background-color: #3498db; /* Match sidebar color */
+        color: white;
+        padding: 10px 20px;
+        font-size: 16px;
+        border: none;
+        cursor: pointer;
+        border-radius: 5px;
+        display: inline-flex;
+        align-items: center;
+        transition: background-color 0.3s ease;
+    }
+    .back-button button i {
+        margin-right: 8px;
+    }
+    .back-button button:hover {
+        background-color: #2980b9; /* Darker shade */
+    }
+    canvas {
+        max-width: 80%;
+        height: auto;
+    }
+</style>
 </head>
 <body>
 
@@ -122,17 +163,23 @@ $result = $stmt->get_result();
     <h1>Hasil Beasiswa</h1>
     
     <?php
-    // Menampilkan pesan sukses jika ada
     if (isset($_SESSION['success_message'])) {
         echo "<div class='alert'>" . $_SESSION['success_message'] . "</div>";
-        unset($_SESSION['success_message']); // Hapus setelah ditampilkan
+        unset($_SESSION['success_message']);
     }
+    ?>
 
+    <!-- Grafik jumlah pendaftar per beasiswa -->
+    <div class="chart-container">
+        <canvas id="beasiswaChart"></canvas>
+    </div>
+
+    <?php
     if ($result->num_rows > 0) {
         echo "<table>";
         echo "<tr><th>Nama</th><th>Email</th><th>No HP</th><th>Semester</th><th>IPK</th><th>Pilihan Beasiswa</th><th>Status Ajuan</th><th>Berkas</th></tr>";
         
-        // Loop untuk menampilkan data pendaftar
+        $result->data_seek(0);
         while ($row = $result->fetch_assoc()) {
             echo "<tr>";
             echo "<td>" . htmlspecialchars($row['nama']) . "</td>";
@@ -150,7 +197,6 @@ $result = $stmt->get_result();
         echo "<div class='alert'>No applications found.</div>";
     }
 
-    // Tutup koneksi
     $stmt->close();
     $conn->close();
     ?>
@@ -163,5 +209,39 @@ $result = $stmt->get_result();
     </div>
 </div>
 
+<script>
+    var beasiswaLabels = <?php echo json_encode(array_keys($beasiswa_counts)); ?>;
+    var beasiswaCounts = <?php echo json_encode(array_values($beasiswa_counts)); ?>;
+
+    var ctx = document.getElementById('beasiswaChart').getContext('2d');
+    var beasiswaChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: beasiswaLabels,
+            datasets: [{
+                label: 'Jumlah Pendaftar',
+                data: beasiswaCounts,
+                backgroundColor: '#3498db', // Match sidebar color
+                borderColor: '#2980b9', // Darker shade
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1,
+                        callback: function(value) {
+                            if (Number.isInteger(value)) {
+                                return value;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    });
+</script>
 </body>
 </html>

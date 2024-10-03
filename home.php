@@ -1,4 +1,4 @@
-<h1>Selamat datang di Beasiswa Telkom University Purwokerto</h1>
+<h1>Selamat datang di Beasiswa Telkom University</h1>
 <p>Gunakan aplikasi ini untuk menjelajahi peluang beasiswa dan mendaftar untuknya.</p>
 
 <h2>Pilihan Beasiswa</h2>
@@ -6,7 +6,7 @@
     <ul>
         <li>
             <strong>Beasiswa A</strong>: Beasiswa untuk mahasiswa dengan prestasi akademik yang luar biasa.
-            <p>IPK di atas 3.5.</p>
+            <p>IPK di atas 3.4.</p>
         </li>
         <li>
             <strong>Beasiswa B</strong>: Beasiswa untuk mahasiswa yang aktif di bidang non-akademik.

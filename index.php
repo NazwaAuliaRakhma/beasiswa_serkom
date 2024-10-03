@@ -71,11 +71,10 @@
         <a href="index.php?page=hasil_beasiswa">Hasil Beasiswa</a>
     </div>
 
-    <!-- Main Content Area -->
     <div class="main-content">
         <?php
         if (isset($_GET['page'])) {
-            $page = $_GET['page'];
+            $page = $_GET['page']; // mengambil data read
             
             switch ($page) {
                 case 'home':

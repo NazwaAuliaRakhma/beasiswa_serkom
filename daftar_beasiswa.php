@@ -6,18 +6,41 @@
     <title>Daftar Beasiswa</title>
     <link rel="stylesheet" href="style.css">
     <script>
+        // Asumsi IPK default
+        const defaultIPK = 3.40; 
+        window.onload = function () {
+            const ipkInput = document.getElementById('ipk');
+            ipkInput.value = defaultIPK.toFixed(2); // pembulatan 2 angka dibelakang koma
+            validateIPK(); // cek ipk masuk disable atau enable
+        };
+
         function validateIPK() {
             const ipkInput = document.getElementById('ipk');
             const ipkValue = parseFloat(ipkInput.value);
             const message = document.getElementById('message');
 
-            message.textContent = '';
+            message.textContent = ''; 
 
             if (ipkValue < 3.00) {
                 message.textContent = 'IPK harus minimal 3.00 untuk mendaftar.';
-                return false; 
+                disableForm(); 
+            } else {
+                enableForm(); 
+                message.textContent = ''; 
             }
-            return true; 
+        }
+
+        function disableForm() {
+            document.getElementById('pilihan_beasiswa').disabled = true;
+            document.getElementById('berkas').disabled = true;
+            document.querySelector('input[type="submit"]').disabled = true;
+        }
+
+        // Function to enable form fields
+        function enableForm() {
+            document.getElementById('pilihan_beasiswa').disabled = false;
+            document.getElementById('berkas').disabled = false;
+            document.querySelector('input[type="submit"]').disabled = false;
         }
 
         function updateDocumentRequirement() {
@@ -25,7 +48,6 @@
             const berkasLabel = document.getElementById('berkas_label');
             const documentRequirement = document.getElementById('document_requirement');
 
-            // Clear previous messages
             documentRequirement.textContent = '';
 
             switch (pilihanBeasiswa.value) {
@@ -59,7 +81,7 @@
             <input type="email" id="email" name="email" required><br><br>
 
             <label for="no_hp">No HP:</label>
-            <input type="text" id="no_hp" name="no_hp" required><br><br>
+            <input type="tel" id="no_hp" name="no_hp" required><br><br>
 
             <label for="semester">Semester:</label>
             <select id="semester" name="semester" required>
@@ -75,7 +97,7 @@
             </select><br><br>
 
             <label for="ipk">IPK:</label>
-            <input type="number" step="0.01" id="ipk" name="ipk" required><br><br>
+            <input type="number" step="0.01" id="ipk" name="ipk" oninput="validateIPK()" required><br><br>
 
             <label for="pilihan_beasiswa">Pilihan Beasiswa:</label>
             <select id="pilihan_beasiswa" name="pilihan_beasiswa" required onchange="updateDocumentRequirement()">
@@ -89,7 +111,7 @@
             <input type="file" id="berkas" name="berkas" accept="application/pdf" required><br><br>
             <div id="document_requirement" style="font-weight: bold;"></div>
 
-            <input type="submit" value="Submit Application">
+            <input type="submit" value="Submit Form">
             <div id="message" style="color: red; margin-top: 10px;"></div>
         </form>
     </div>
