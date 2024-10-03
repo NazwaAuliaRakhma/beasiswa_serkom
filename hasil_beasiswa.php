@@ -13,8 +13,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $pilihan_beasiswa = $_POST['pilihan_beasiswa'];
 
     $target_dir = "uploads/";
-    if (!is_dir($target_dir)) { 
-        mkdir($target_dir, 0777, true); 
+    if (!is_dir($target_dir)) { // fungsi untuk memeriksa directory
+        mkdir($target_dir, 0777, true); // membuk akses seluruhnya
     }
     
     $target_file = $target_dir . basename($_FILES["berkas"]["name"]);
@@ -29,7 +29,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($uploadOk == 1) {
         if (move_uploaded_file($_FILES["berkas"]["tmp_name"], $target_file)) {
             $stmt = $conn->prepare("INSERT INTO mahasiswa (nama, email, no_hp, semester, ipk, pilihan_beasiswa, berkas) VALUES (?, ?, ?, ?, ?, ?, ?)");
-            $stmt->bind_param("sssssss", $nama, $email, $no_hp, $semester, $ipk, $pilihan_beasiswa, $target_file);
+            $stmt->bind_param("sssssss", $nama, $email, $no_hp, $semester, $ipk, $pilihan_beasiswa, $target_file); // parameter
 
             if ($stmt->execute()) {
                 $_SESSION['success_message'] = "Form submitted successfully.";
@@ -48,20 +48,19 @@ $stmt = $conn->prepare("SELECT * FROM mahasiswa ORDER BY id DESC");
 $stmt->execute();
 $result = $stmt->get_result();
 
+//array kosong
 $beasiswa_counts = [];
 $nama_data = [];
-$ipk_data = [];
 
-while ($row = $result->fetch_assoc()) {
+while ($row = $result->fetch_assoc()) { //array assosiatif dg key = row
     $pilihan_beasiswa = $row['pilihan_beasiswa'];
-    if (isset($beasiswa_counts[$pilihan_beasiswa])) {
+    if (isset($beasiswa_counts[$pilihan_beasiswa])) { //mengecekan udah ada di array belum
         $beasiswa_counts[$pilihan_beasiswa]++;
     } else {
-        $beasiswa_counts[$pilihan_beasiswa] = 1;
+        $beasiswa_counts[$pilihan_beasiswa] = 1; //inisialisasi pertama kali muncul
     }
     
     $nama_data[] = $row['nama'];
-    $ipk_data[] = $row['ipk'];
 }
 ?>
 
@@ -115,12 +114,12 @@ while ($row = $result->fetch_assoc()) {
         text-align: left;
     }
     th {
-        background-color: #3498db; /* Match sidebar color */
+        background-color: #3498db; 
         color: white;
         font-weight: 500;
     }
     tr:nth-child(even) {
-        background-color: #ecf6fc; /* Light shade to match sidebar */
+        background-color: #ecf6fc;
     }
     .chart-container {
         margin: 20px 0;

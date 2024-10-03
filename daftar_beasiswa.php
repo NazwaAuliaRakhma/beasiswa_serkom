@@ -14,6 +14,7 @@
             validateIPK(); // cek ipk masuk disable atau enable
         };
 
+        //fungsi validasi ipk
         function validateIPK() {
             const ipkInput = document.getElementById('ipk');
             const ipkValue = parseFloat(ipkInput.value);
@@ -36,7 +37,6 @@
             document.querySelector('input[type="submit"]').disabled = true;
         }
 
-        // Function to enable form fields
         function enableForm() {
             document.getElementById('pilihan_beasiswa').disabled = false;
             document.getElementById('berkas').disabled = false;
@@ -73,7 +73,7 @@
 <body>
     <div class="content">
         <h1>Daftar Beasiswa</h1>
-        <form action="hasil_beasiswa.php" method="POST" enctype="multipart/form-data" onsubmit="return validateIPK()">
+        <form action="hasil_beasiswa.php" method="POST" enctype="multipart/form-data" onsubmit="return validateIPK()"> <!-- mengunggah file -->
             <label for="nama">Nama:</label>
             <input type="text" id="nama" name="nama" required><br><br>
 
