@@ -73,7 +73,7 @@
 
     <div class="main-content">
         <?php
-        if (isset($_GET['page'])) {
+        if (isset($_GET['page'])) { // digabung di html
             $page = $_GET['page']; // mengambil data read
             
             switch ($page) {

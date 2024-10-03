@@ -26,8 +26,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $uploadOk = 0; 
     }
 
+    // mengupload file/berkas
     if ($uploadOk == 1) {
         if (move_uploaded_file($_FILES["berkas"]["tmp_name"], $target_file)) {
+            //pre-existing conn, upload
             $stmt = $conn->prepare("INSERT INTO mahasiswa (nama, email, no_hp, semester, ipk, pilihan_beasiswa, berkas) VALUES (?, ?, ?, ?, ?, ?, ?)");
             $stmt->bind_param("sssssss", $nama, $email, $no_hp, $semester, $ipk, $pilihan_beasiswa, $target_file); // parameter
 
@@ -133,7 +135,7 @@ while ($row = $result->fetch_assoc()) { //array assosiatif dg key = row
         text-decoration: none;
     }
     .back-button button {
-        background-color: #3498db; /* Match sidebar color */
+        background-color: #3498db; 
         color: white;
         padding: 10px 20px;
         font-size: 16px;
@@ -148,7 +150,7 @@ while ($row = $result->fetch_assoc()) { //array assosiatif dg key = row
         margin-right: 8px;
     }
     .back-button button:hover {
-        background-color: #2980b9; /* Darker shade */
+        background-color: #2980b9; 
     }
     canvas {
         max-width: 80%;
@@ -157,7 +159,6 @@ while ($row = $result->fetch_assoc()) { //array assosiatif dg key = row
 </style>
 </head>
 <body>
-
 <div class="content">
     <h1>Hasil Beasiswa</h1>
     
@@ -174,6 +175,7 @@ while ($row = $result->fetch_assoc()) { //array assosiatif dg key = row
     </div>
 
     <?php
+
     if ($result->num_rows > 0) {
         echo "<table>";
         echo "<tr><th>Nama</th><th>Email</th><th>No HP</th><th>Semester</th><th>IPK</th><th>Pilihan Beasiswa</th><th>Status Ajuan</th><th>Berkas</th></tr>";
@@ -209,6 +211,7 @@ while ($row = $result->fetch_assoc()) { //array assosiatif dg key = row
 </div>
 
 <script>
+    // mengambil data php ke js
     var beasiswaLabels = <?php echo json_encode(array_keys($beasiswa_counts)); ?>;
     var beasiswaCounts = <?php echo json_encode(array_values($beasiswa_counts)); ?>;
 
@@ -220,17 +223,17 @@ while ($row = $result->fetch_assoc()) { //array assosiatif dg key = row
             datasets: [{
                 label: 'Jumlah Pendaftar',
                 data: beasiswaCounts,
-                backgroundColor: '#3498db', // Match sidebar color
-                borderColor: '#2980b9', // Darker shade
+                backgroundColor: '#3498db', 
+                borderColor: '#2980b9', 
                 borderWidth: 1
             }]
         },
         options: {
             scales: {
                 y: {
-                    beginAtZero: true,
+                    beginAtZero: true, // diawali dari titik 0
                     ticks: {
-                        stepSize: 1,
+                        stepSize: 1, // sumbu y meningkat tiap 1 unit (bil. bulat)
                         callback: function(value) {
                             if (Number.isInteger(value)) {
                                 return value;
